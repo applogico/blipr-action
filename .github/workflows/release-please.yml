@@ -40,3 +40,17 @@ jobs:
           git tag -f "v${MAJOR}.${MINOR}"
           git push -f origin "v${MAJOR}"
           git push -f origin "v${MAJOR}.${MINOR}"
+
+      # Announce the new version. Uses the in-repo action (./), already checked
+      # out above. No secret needed; continue-on-error so it can't fail a release.
+      - name: Blip the published release
+        if: ${{ steps.release.outputs.release_created }}
+        uses: ./
+        continue-on-error: true
+        with:
+          topic: blipr-action-releases
+          title: Blipr Notifications ${{ steps.release.outputs.tag_name }} released
+          message: "${{ steps.release.outputs.tag_name }} is published. uses: applogico/blipr-action@v${{ steps.release.outputs.major }}"
+          priority: 3
+          tags: rocket
+          click: ${{ steps.release.outputs.html_url }}
