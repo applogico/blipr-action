@@ -1,0 +1,14 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "d7224a13bfb59ae45220105c77973d1867306582",
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "package-name": "blipr-action",
+      "include-component-in-tag": false,
+      "bump-minor-pre-major": false,
+      "bump-patch-for-minor-pre-major": false,
+      "changelog-path": "CHANGELOG.md"
+    }
+  }
+}
