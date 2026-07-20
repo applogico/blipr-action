@@ -33,7 +33,7 @@ fi
 
 # --- assemble headers (only those that were set) ---------------------------
 args=(-X POST)
-add_header() { [[ -n "$2" ]] && args+=(-H "$1: $2") || true; }
+add_header() { if [[ -n "$2" ]]; then args+=(-H "$1: $2"); fi; }
 add_header "X-Title" "${BLIPR_TITLE:-}"
 add_header "X-Priority" "${BLIPR_PRIORITY:-}"
 add_header "X-Tags" "${BLIPR_TAGS:-}"
@@ -42,7 +42,7 @@ add_header "X-Icon" "${BLIPR_ICON:-}"
 add_header "X-Reply" "${BLIPR_REPLY:-}"
 add_header "X-Options" "${BLIPR_OPTIONS:-}"
 add_header "X-Callback" "${BLIPR_CALLBACK:-}"
-truthy "${BLIPR_MARKDOWN:-}" && args+=(-H "X-Markdown: true") || true
+if truthy "${BLIPR_MARKDOWN:-}"; then args+=(-H "X-Markdown: true"); fi
 
 url="${server}/blip/${topic}"
 
