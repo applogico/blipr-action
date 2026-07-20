@@ -1,0 +1,89 @@
+name: 'Blipr'
+description: 'Send a Blipr push notification from CI — curl your phone.'
+author: 'Applogico'
+
+branding:
+  icon: 'bell'
+  color: 'purple'
+
+inputs:
+  topic:
+    description: 'Topic to publish to. Allowed: A-Z a-z 0-9 - _ , max 64 chars. Anyone who knows the name can publish, so keep sensitive topics unguessable.'
+    required: true
+  message:
+    description: 'Message body. Defaults to a one-line summary of the workflow run.'
+    required: false
+    default: ''
+  title:
+    description: 'Notification title.'
+    required: false
+    default: ''
+  priority:
+    description: 'Priority: 1-5, or one of min | low | default | high | max | urgent. Priority 4-5 arrive as Time-Sensitive (break through Focus & Do Not Disturb).'
+    required: false
+    default: ''
+  tags:
+    description: 'Comma-separated tags / emoji shortcodes, e.g. "rocket,white_check_mark".'
+    required: false
+    default: ''
+  click:
+    description: 'URL to open when the notification is tapped. Defaults to this workflow run.'
+    required: false
+    default: ''
+  icon:
+    description: 'URL of an icon image to display with the notification.'
+    required: false
+    default: ''
+  markdown:
+    description: 'Render the message body as Markdown (true/false).'
+    required: false
+    default: 'false'
+  reply:
+    description: 'Ask recipients for a reply: binary | ack | choice. Leave empty for a one-way alert.'
+    required: false
+    default: ''
+  options:
+    description: 'Comma-separated choices (2-10) — required when reply=choice.'
+    required: false
+    default: ''
+  callback:
+    description: 'URL POSTed the reply when it lands (used with reply=binary|ack|choice).'
+    required: false
+    default: ''
+  server:
+    description: 'Base URL of the Blipr / notify server. Point this at your own host to self-host.'
+    required: false
+    default: 'https://blipr.dev'
+  dry_run:
+    description: 'Print the request that would be sent and exit without publishing (true/false).'
+    required: false
+    default: 'false'
+
+outputs:
+  message_id:
+    description: 'ID of the published message (empty on dry-run).'
+    value: ${{ steps.blip.outputs.message_id }}
+  http_code:
+    description: 'HTTP status code returned by the server.'
+    value: ${{ steps.blip.outputs.http_code }}
+
+runs:
+  using: 'composite'
+  steps:
+    - id: blip
+      shell: bash
+      run: ${{ github.action_path }}/blip.sh
+      env:
+        BLIPR_TOPIC: ${{ inputs.topic }}
+        BLIPR_MESSAGE: ${{ inputs.message }}
+        BLIPR_TITLE: ${{ inputs.title }}
+        BLIPR_PRIORITY: ${{ inputs.priority }}
+        BLIPR_TAGS: ${{ inputs.tags }}
+        BLIPR_CLICK: ${{ inputs.click }}
+        BLIPR_ICON: ${{ inputs.icon }}
+        BLIPR_MARKDOWN: ${{ inputs.markdown }}
+        BLIPR_REPLY: ${{ inputs.reply }}
+        BLIPR_OPTIONS: ${{ inputs.options }}
+        BLIPR_CALLBACK: ${{ inputs.callback }}
+        BLIPR_SERVER: ${{ inputs.server }}
+        BLIPR_DRY_RUN: ${{ inputs.dry_run }}

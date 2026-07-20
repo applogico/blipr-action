@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ShellCheck
+        run: shellcheck blip.sh
+
+  self-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Exercise the action against itself in dry-run mode so no notification
+      # is sent, then assert the outputs are wired up.
+      - id: dry
+        uses: ./
+        with:
+          topic: ci-self-test
+          title: CI self-test
+          message: This should never actually send.
+          priority: 4
+          tags: robot
+          dry_run: true
+
+      - name: Assert dry-run produced no message id
+        run: |
+          if [ -n "${{ steps.dry.outputs.message_id }}" ]; then
+            echo "::error::dry-run should not return a message_id"; exit 1
+          fi
+          echo "dry-run OK"
