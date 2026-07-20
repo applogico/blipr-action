@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/applogico/blipr-action/compare/v1.0.0...v1.0.1) (2026-07-20)
+
+
+### Bug Fixes
+
+* rename Marketplace action to "Blipr Notifications" ([74d2c6e](https://github.com/applogico/blipr-action/commit/74d2c6e693c026b86ff08d2e9e291d081e87243e))
+* rename Marketplace action to "Blipr Notifications" ([200b16c](https://github.com/applogico/blipr-action/commit/200b16cf88c4db38db09c4fe8bc06a23a28873b1))
+
 ## 1.0.0 (2026-07-20)
 
 ### Features
