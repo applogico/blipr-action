@@ -36,3 +36,25 @@ jobs:
             echo "::error::dry-run should not return a message_id"; exit 1
           fi
           echo "dry-run OK"
+
+  # Dogfood: blip the pipeline result to the blipr-action-ci-pipeline topic.
+  # Runs after the other jobs regardless of outcome. No secret needed —
+  # publishing is public-by-topic. `continue-on-error` keeps a publish hiccup
+  # from failing the run. Uses the in-repo action (./) so it exercises the
+  # code on this branch, not a released version.
+  notify:
+    name: Blip CI result
+    needs: [lint, self-test]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Send Blipr notification
+        uses: ./
+        continue-on-error: true
+        with:
+          topic: blipr-action-ci-pipeline
+          title: ${{ (needs.lint.result == 'success' && needs.self-test.result == 'success') && 'CI passed' || 'CI failed' }}
+          message: "${{ github.workflow }} on ${{ github.ref_name }} (${{ github.event_name }})"
+          priority: ${{ (needs.lint.result == 'success' && needs.self-test.result == 'success') && '2' || '5' }}
+          tags: ${{ (needs.lint.result == 'success' && needs.self-test.result == 'success') && 'white_check_mark' || 'rotating_light' }}
