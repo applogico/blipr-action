@@ -1,4 +1,4 @@
-name: 'Blipr'
+name: 'Blipr Notifications'
 description: 'Send a Blipr push notification from CI — curl your phone.'
 author: 'Applogico'
 
