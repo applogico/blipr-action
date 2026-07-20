@@ -14,12 +14,20 @@ jobs:
     steps:
       - uses: googleapis/release-please-action@v4
         id: release
+        with:
+          # The applogico org disables write for the default GITHUB_TOKEN, so
+          # release-please authenticates with a scoped PAT/App token stored as
+          # the RELEASE_PLEASE_TOKEN secret (Contents + Pull requests: RW).
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
 
       # When a release is cut, move the floating major/minor tags (v1, v1.2)
       # to the release commit so `uses: applogico/blipr-action@v1` always
       # resolves to the latest release — the convention for GitHub Actions.
+      # Checkout with the same token so the tag push is authorized.
       - uses: actions/checkout@v4
         if: ${{ steps.release.outputs.release_created }}
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
       - name: Update major and minor tags
         if: ${{ steps.release.outputs.release_created }}
         env:
