@@ -19,7 +19,7 @@ inputs:
     required: false
     default: ''
   priority:
-    description: 'Priority: 1-5, or one of min | low | default | high | max | urgent. Priority 4-5 arrive as Time-Sensitive (break through Focus & Do Not Disturb).'
+    description: 'Priority: 1-5, or one of min | low | default | high | max | urgent. Priority 5 arrives as Time-Sensitive (breaks through Focus & Do Not Disturb).'
     required: false
     default: ''
   tags:

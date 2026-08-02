@@ -2,7 +2,7 @@
 
 Send a [Blipr](https://apps.apple.com/us/app/blipr-notifications/id6785094245) push notification from your CI — **curl your phone.**
 
-Subscribe to a topic in the Blipr app, then have any workflow publish to it. Priority 4–5 alerts arrive as Time-Sensitive, so the one that matters breaks through Focus and Do Not Disturb.
+Subscribe to a topic in the Blipr app, then have any workflow publish to it. Priority 5 alerts arrive as Time-Sensitive, so the one that matters breaks through Focus and Do Not Disturb.
 
 It's a composite action: just `curl`, no build step, runs on any GitHub-hosted or self-hosted runner.
 
@@ -60,7 +60,7 @@ jobs:
 | `topic`    | **yes**  | —                  | Topic to publish to. `A–Z a–z 0–9 - _`, ≤64 chars. Anyone who knows the name can publish — keep sensitive topics unguessable. |
 | `message`  | no       | run summary        | Message body. Defaults to `"<workflow> on <repo> (run #<n>)"`. |
 | `title`    | no       | —                  | Notification title. |
-| `priority` | no       | `default` (3)      | `1`–`5`, or `min`/`low`/`default`/`high`/`max`/`urgent`. 4–5 are Time-Sensitive. |
+| `priority` | no       | `default` (3)      | `1`–`5`, or `min`/`low`/`default`/`high`/`max`/`urgent`. 5 is Time-Sensitive. |
 | `tags`     | no       | —                  | Comma-separated tags / emoji shortcodes, e.g. `rocket,white_check_mark`. |
 | `click`    | no       | this workflow run  | URL to open when the notification is tapped. |
 | `icon`     | no       | —                  | URL of an icon image to display. |
