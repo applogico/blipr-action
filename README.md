@@ -1,5 +1,9 @@
 # Blipr GitHub Action
 
+[![release](https://img.shields.io/github/v/release/applogico/blipr-action)](https://github.com/applogico/blipr-action/releases)
+[![CI](https://github.com/applogico/blipr-action/actions/workflows/ci.yml/badge.svg)](https://github.com/applogico/blipr-action/actions/workflows/ci.yml)
+[![license: MIT](https://img.shields.io/github/license/applogico/blipr-action)](./LICENSE)
+
 Send a [Blipr](https://apps.apple.com/us/app/blipr-notifications/id6785094245) push notification from your CI — **curl your phone.**
 
 Subscribe to a topic in the Blipr app, then have any workflow publish to it. Priority 5 alerts arrive as Time-Sensitive, so the one that matters breaks through Focus and Do Not Disturb.
