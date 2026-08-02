@@ -48,8 +48,8 @@ jobs:
         uses: ./
         continue-on-error: true
         with:
-          topic: blipr-action-releases
-          title: Blipr Notifications ${{ steps.release.outputs.tag_name }} released
+          topic: blipr-releases
+          title: blipr-action ${{ steps.release.outputs.tag_name }} released
           message: "${{ steps.release.outputs.tag_name }} is published. uses: applogico/blipr-action@v${{ steps.release.outputs.major }}"
           priority: 3
           tags: rocket
