@@ -50,6 +50,94 @@ jobs:
           fi
           echo "dry-run OK"
 
+      # The two input-injection regressions can only be seen on the wire, so
+      # the rest of this job publishes for real at a listener that keeps the
+      # raw request bytes.
+      - name: Start a raw-request listener
+        run: |
+          cat >/tmp/sink.py <<'PY'
+          import socket
+
+          srv = socket.socket()
+          srv.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+          srv.bind(("127.0.0.1", 8099))
+          srv.listen(8)
+          open("/tmp/sink.ready", "w").close()
+
+          log = open("/tmp/requests.log", "wb", buffering=0)
+          reply = b'{"id":"self-test"}'
+
+          while True:
+              conn, _ = srv.accept()
+              try:
+                  buf = b""
+                  while b"\r\n\r\n" not in buf:
+                      chunk = conn.recv(65536)
+                      if not chunk:
+                          break
+                      buf += chunk
+                  head, _, body = buf.partition(b"\r\n\r\n")
+                  length = 0
+                  for line in head.split(b"\r\n")[1:]:
+                      name, _, value = line.partition(b":")
+                      if name.strip().lower() == b"content-length":
+                          length = int(value.strip())
+                  while len(body) < length:
+                      chunk = conn.recv(65536)
+                      if not chunk:
+                          break
+                      body += chunk
+                  log.write(head + b"\r\n\r\n" + body + b"\n")
+                  conn.sendall(
+                      b"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: "
+                      + str(len(reply)).encode()
+                      + b"\r\nConnection: close\r\n\r\n"
+                      + reply
+                  )
+              finally:
+                  conn.close()
+          PY
+          nohup python3 /tmp/sink.py >/tmp/sink.log 2>&1 &
+          for _ in $(seq 1 50); do
+            [ -f /tmp/sink.ready ] && break
+            sleep 0.2
+          done
+          [ -f /tmp/sink.ready ] || { echo "::error::listener never started"; cat /tmp/sink.log; exit 1; }
+          printf 'BAIT-CONTENT-MUST-NOT-BE-SENT\n' >/tmp/bait.txt
+
+      - name: Publish a message that starts with @
+        uses: ./
+        with:
+          topic: ci-self-test
+          server: http://127.0.0.1:8099
+          message: '@/tmp/bait.txt'
+
+      - name: Publish a title containing a line break
+        uses: ./
+        with:
+          topic: ci-self-test
+          server: http://127.0.0.1:8099
+          message: body
+          title: "ok\r\nX-Injected: yes"
+
+      - name: Assert neither input reached curl as syntax
+        run: |
+          tr -d '\r' </tmp/requests.log >/tmp/requests.txt
+          cat /tmp/requests.txt
+          bad=0
+          grep -qx '@/tmp/bait.txt' /tmp/requests.txt ||
+            { echo "::error::a message starting with @ was not sent verbatim"; bad=1; }
+          if grep -q 'BAIT-CONTENT-MUST-NOT-BE-SENT' /tmp/requests.txt; then
+            echo "::error::curl read a local file into the request body"; bad=1
+          fi
+          if grep -q '^X-Injected:' /tmp/requests.txt; then
+            echo "::error::a line break in an input injected an HTTP header"; bad=1
+          fi
+          grep -Eqx 'X-Title: ok +X-Injected: yes' /tmp/requests.txt ||
+            { echo "::error::title was not flattened onto a single line"; bad=1; }
+          [ "$bad" -eq 0 ] || exit 1
+          echo "injection self-test OK"
+
   # Dogfood: blip the pipeline result to the blipr-action-ci-pipeline topic.
   # Runs after the other jobs regardless of outcome. No secret needed —
   # publishing is public-by-topic. `continue-on-error` keeps a publish hiccup

@@ -30,7 +30,15 @@ if [[ -z "${click}" && -n "${GITHUB_SERVER_URL:-}" && -n "${GITHUB_REPOSITORY:-}
 fi
 
 args=(-X POST)
-add_header() { if [[ -n "$2" ]]; then args+=(-H "$1: $2"); fi; }
+# curl sends header values verbatim, so a CR or LF in one would end the header
+# and start another: whatever followed the break arrives as a real header.
+add_header() {
+  local input="${1#X-}" value="${2//$'\r'/ }"
+  value="${value//$'\n'/ }"
+  [[ "${value}" == "$2" ]] ||
+    echo "::warning::blipr: line breaks in '${input,,}' were replaced with spaces (an HTTP header cannot span lines)"
+  if [[ -n "${value}" ]]; then args+=(-H "$1: ${value}"); fi
+}
 add_header "X-Title" "${BLIPR_TITLE:-}"
 add_header "X-Priority" "${BLIPR_PRIORITY:-}"
 add_header "X-Tags" "${BLIPR_TAGS:-}"
@@ -60,7 +68,9 @@ fi
 
 resp="$(mktemp)"
 trap 'rm -f "${resp}"' EXIT
-code="$(curl -sS "${args[@]}" --data-binary "${message}" -w '%{http_code}' -o "${resp}" "${url}" || true)"
+# --data-raw, not --data-binary: to the latter a leading @ means "read this
+# file", so a message like "@channel deploy failed" would post a local file.
+code="$(curl -sS "${args[@]}" --data-raw "${message}" -w '%{http_code}' -o "${resp}" "${url}" || true)"
 body="$(cat "${resp}")"
 
 if [[ "${code}" != 2* ]]; then
