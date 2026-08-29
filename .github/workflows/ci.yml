@@ -6,10 +6,25 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    env:
+      # Pinned so a new ShellCheck release can't fail CI on a rule this code predates.
+      SHELLCHECK_VERSION: v0.11.0
+      SHELLCHECK_SHA256: 8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: |
+          curl -fsSLo shellcheck.tar.xz \
+            "https://github.com/koalaman/shellcheck/releases/download/${SHELLCHECK_VERSION}/shellcheck-${SHELLCHECK_VERSION}.linux.x86_64.tar.xz"
+          echo "${SHELLCHECK_SHA256}  shellcheck.tar.xz" | sha256sum -c -
+          tar -xJf shellcheck.tar.xz
+          sudo install -m 0755 "shellcheck-${SHELLCHECK_VERSION}/shellcheck" /usr/local/bin/shellcheck
+          rm -rf shellcheck.tar.xz "shellcheck-${SHELLCHECK_VERSION}"
+          shellcheck --version
+
       - name: ShellCheck
-        run: shellcheck blip.sh
+        run: shellcheck --severity=style --enable=all blip.sh
 
   self-test:
     runs-on: ubuntu-latest
