@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/applogico/blipr-action/compare/v1.0.1...v1.0.2) (2026-08-29)
+
+
+### Bug Fixes
+
+* stop curl reading local files from a message and headers splitting on CRLF ([#16](https://github.com/applogico/blipr-action/issues/16)) ([675ad01](https://github.com/applogico/blipr-action/commit/675ad01abd2ea17625aa2e69b44332d879fd29ea))
+
 ## [1.0.1](https://github.com/applogico/blipr-action/compare/v1.0.0...v1.0.1) (2026-08-02)
 
 
