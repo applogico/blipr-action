@@ -77,6 +77,8 @@ jobs:
 | `server`   | no       | `https://blipr.dev`| Base URL of the Blipr / notify server. Point at your own host to self-host. |
 | `dry_run`  | no       | `false`            | Print the request and exit without publishing. Handy for testing. |
 
+Every input except `message` travels as an HTTP header, and a header is a single line: a line break in one of those values is replaced with a space and noted as a warning in the log. Only `message` keeps its line breaks.
+
 ## Outputs
 
 | Output       | Description                                   |
