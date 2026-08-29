@@ -21,6 +21,8 @@ It's a composite action: just `curl`, no build step, runs on any GitHub-hosted o
 
 That's the whole thing. `topic` is the only required input.
 
+The topic has to exist first: on blipr.dev you create it by signing in to the Blipr app and subscribing to the name, and publishing to a name that does not exist returns 404. A self-hosted notify server still creates the topic on the first publish.
+
 ## Notify on failure
 
 ```yaml
@@ -61,7 +63,7 @@ jobs:
 
 | Input      | Required | Default            | Description |
 |------------|----------|--------------------|-------------|
-| `topic`    | **yes**  | —                  | Topic to publish to. `A–Z a–z 0–9 - _`, ≤64 chars. Anyone who knows the name can publish — keep sensitive topics unguessable. |
+| `topic`    | **yes**  | —                  | Topic to publish to. Must already exist. `A–Z a–z 0–9 - _`, ≤64 chars. Anyone who knows the name can publish — keep sensitive topics unguessable. |
 | `message`  | no       | run summary        | Message body. Defaults to `"<workflow> on <repo> (run #<n>)"`. |
 | `title`    | no       | —                  | Notification title. |
 | `priority` | no       | `default` (3)      | `1`–`5`, or `min`/`low`/`default`/`high`/`max`/`urgent`. 5 is Time-Sensitive. |
@@ -114,7 +116,7 @@ Point `server` at your own notify host:
 
 ## How it works
 
-The action `POST`s to `<server>/blip/<topic>` with the message as the raw body and metadata as `X-*` headers — the same [ntfy-style](https://ntfy.sh) contract the Blipr app publishes with. Publishing is public-by-topic: no token or API key required.
+The action `POST`s to `<server>/blip/<topic>` with the message as the raw body and metadata as `X-*` headers — the same [ntfy-style](https://ntfy.sh) contract the Blipr app publishes with. Publishing is public-by-topic: no token or API key is required to send to a topic that exists.
 
 ## License
 
