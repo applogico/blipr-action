@@ -8,8 +8,12 @@ branding:
 
 inputs:
   topic:
-    description: 'Topic to publish to. Allowed: A-Z a-z 0-9 - _ , max 64 chars. Anyone who knows the name can publish, so keep sensitive topics unguessable.'
+    description: 'Topic to publish to. A public topic is A-Z a-z 0-9 - _ , max 64 chars; anyone who knows its name can publish, so keep it unguessable. A protected topic is @handle/topic and needs a token.'
     required: true
+  token:
+    description: 'Token for a protected @handle/topic, sent as a Bearer token. Pass it from a repository secret.'
+    required: false
+    default: ''
   message:
     description: 'Message body. Defaults to a one-line summary of the workflow run.'
     required: false
@@ -75,6 +79,7 @@ runs:
       run: ${{ github.action_path }}/blip.sh
       env:
         BLIPR_TOPIC: ${{ inputs.topic }}
+        BLIPR_TOKEN: ${{ inputs.token }}
         BLIPR_MESSAGE: ${{ inputs.message }}
         BLIPR_TITLE: ${{ inputs.title }}
         BLIPR_PRIORITY: ${{ inputs.priority }}

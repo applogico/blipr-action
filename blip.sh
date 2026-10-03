@@ -13,11 +13,24 @@ server="${BLIPR_SERVER:-https://blipr.dev}"
 server="${server%/}"
 topic="${BLIPR_TOPIC:-}"
 
-# Duplicated from the server's own topic rule; the two must not drift.
+# Duplicated from the server's topic and handle rules; they must not drift.
+topic_re='^[A-Za-z0-9_-]{1,64}$'
+handle_re='^[A-Za-z_][A-Za-z0-9_]{2,29}$'
 [[ -n "${topic}" ]] || fail "'topic' is required"
-[[ ${#topic} -le 64 ]] || fail "topic '${topic}' is too long (max 64 chars)"
-[[ "${topic}" =~ ^[A-Za-z0-9_-]+$ ]] ||
-  fail "topic '${topic}' has invalid characters (allowed: letters, digits, - and _)"
+if [[ "${topic}" == @* ]]; then
+  handle="${topic#@}"
+  handle="${handle%%/*}"
+  leaf="${topic#*/}"
+  [[ "${topic}" == */* && "${handle}" =~ ${handle_re} && "${leaf}" =~ ${topic_re} ]] ||
+    fail "topic '${topic}' is not a valid protected topic (use @handle/topic: a handle of 3 to 30 letters, digits and _ that does not start with a digit, and a topic of letters, digits, - and _, max 64 chars)"
+else
+  [[ ${#topic} -le 64 ]] || fail "topic '${topic}' is too long (max 64 chars)"
+  [[ "${topic}" =~ ${topic_re} ]] ||
+    fail "topic '${topic}' has invalid characters (allowed: letters, digits, - and _, or @handle/topic for a protected topic)"
+fi
+
+token="${BLIPR_TOKEN:-}"
+if [[ -n "${token}" ]]; then echo "::add-mask::${token}"; fi
 
 message="${BLIPR_MESSAGE:-}"
 if [[ -z "${message}" ]]; then
@@ -49,6 +62,7 @@ add_header "X-Options" "${BLIPR_OPTIONS:-}"
 add_header "X-Callback" "${BLIPR_CALLBACK:-}"
 # shellcheck disable=SC2310 # truthy is a predicate: a non-zero return means "false", not a failure
 if truthy "${BLIPR_MARKDOWN:-}"; then args+=(-H "X-Markdown: true"); fi
+if [[ -n "${token}" ]]; then add_header "Authorization" "Bearer ${token}"; fi
 
 url="${server}/blip/${topic}"
 
@@ -56,7 +70,9 @@ url="${server}/blip/${topic}"
 if truthy "${BLIPR_DRY_RUN:-}"; then
   echo "blipr (dry-run): POST ${url}"
   for ((i = 0; i < ${#args[@]}; i++)); do
-    [[ "${args[i]}" == "-H" ]] && echo "  ${args[i + 1]}"
+    [[ "${args[i]}" == "-H" ]] || continue
+    # The token never reaches the log, even in a dry run.
+    if [[ "${args[i + 1]}" == Authorization:* ]]; then echo "  Authorization: Bearer ***"; else echo "  ${args[i + 1]}"; fi
   done
   echo "  body: ${message}"
   {

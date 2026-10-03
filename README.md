@@ -63,7 +63,8 @@ jobs:
 
 | Input      | Required | Default            | Description |
 |------------|----------|--------------------|-------------|
-| `topic`    | **yes**  | —                  | Topic to publish to. Must already exist. `A–Z a–z 0–9 - _`, ≤64 chars. Anyone who knows the name can publish — keep sensitive topics unguessable. |
+| `topic`    | **yes**  | —                  | Topic to publish to. Must already exist. A public topic is `A–Z a–z 0–9 - _`, ≤64 chars, and anyone who knows its name can publish, so keep it unguessable. A protected topic is `@handle/topic` and needs a `token`. |
+| `token`    | no       | —                  | Token for a protected `@handle/topic`, sent as `Authorization: Bearer`. Pass it from a secret. |
 | `message`  | no       | run summary        | Message body. Defaults to `"<workflow> on <repo> (run #<n>)"`. |
 | `title`    | no       | —                  | Notification title. |
 | `priority` | no       | `default` (3)      | `1`–`5`, or `min`/`low`/`default`/`high`/`max`/`urgent`. 5 is Time-Sensitive. |
@@ -104,6 +105,20 @@ Blipr can ask the recipient a question and collect the answer. The reply is deli
 
 `reply: binary` gives a Yes/No, `reply: ack` a single Acknowledge. The first reply on the topic wins and locks the answer.
 
+## Protected topics
+
+A protected topic is addressed as `@handle/topic`, and only a token with write access can publish to it. Keep the token in a repository secret:
+
+```yaml
+- uses: applogico/blipr-action@v1
+  with:
+    topic: '@alice/deploys'
+    token: ${{ secrets.BLIPR_TOKEN }}
+    message: Build finished
+```
+
+Quote the topic: YAML reads a bare leading `@` as reserved. The handle is 3 to 30 letters, digits and `_`, and doesn't start with a digit; the topic part follows the usual topic rules. The token is masked in the log, including on a dry run.
+
 ## Self-hosting
 
 Point `server` at your own notify host:
@@ -118,7 +133,7 @@ Point `server` at your own notify host:
 
 ## How it works
 
-The action `POST`s to `<server>/blip/<topic>` with the message as the raw body and metadata as `X-*` headers — the same [ntfy-style](https://ntfy.sh) contract the Blipr app publishes with. Publishing is public-by-topic: no token or API key is required to send to a topic that exists.
+The action `POST`s to `<server>/blip/<topic>` with the message as the raw body and metadata as `X-*` headers — the same [ntfy-style](https://ntfy.sh) contract the Blipr app publishes with. Publishing to a public topic needs no token or API key once the topic exists; a protected `@handle/topic` is posted to `<server>/blip/@handle/topic` with the token as a Bearer header.
 
 ## License
 
