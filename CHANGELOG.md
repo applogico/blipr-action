@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/applogico/blipr-action/compare/v1.0.2...v1.1.0) (2026-10-03)
+
+
+### Features
+
+* accept protected @handle/topic names and a token input ([#18](https://github.com/applogico/blipr-action/issues/18)) ([41a5be7](https://github.com/applogico/blipr-action/commit/41a5be7a749f823474dcaa969354b3495e68302c))
+
 ## [1.0.2](https://github.com/applogico/blipr-action/compare/v1.0.1...v1.0.2) (2026-08-29)
 
 
