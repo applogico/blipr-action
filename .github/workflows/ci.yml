@@ -120,6 +120,39 @@ jobs:
           message: body
           title: "ok\r\nX-Injected: yes"
 
+      - name: Publish to a protected topic with a token
+        uses: ./
+        with:
+          topic: '@ci_self_test/home'
+          token: blipr_pk_selftest
+          server: http://127.0.0.1:8099
+          message: protected
+
+      - id: bad_protected
+        name: Reject an invalid protected topic
+        uses: ./
+        continue-on-error: true
+        with:
+          topic: '@1bad/home'
+          server: http://127.0.0.1:8099
+          message: never sent
+
+      - name: Assert the protected topic reached the wire intact
+        run: |
+          tr -d '\r' </tmp/requests.log >/tmp/protected.txt
+          bad=0
+          grep -qx 'POST /blip/@ci_self_test/home HTTP/1.1' /tmp/protected.txt ||
+            { echo "::error::the protected topic path was not sent verbatim"; bad=1; }
+          grep -qx 'Authorization: Bearer blipr_pk_selftest' /tmp/protected.txt ||
+            { echo "::error::the token was not sent as a Bearer header"; bad=1; }
+          if grep -q '@1bad' /tmp/protected.txt; then
+            echo "::error::an invalid protected topic was published"; bad=1
+          fi
+          [ "${{ steps.bad_protected.outcome }}" = "failure" ] ||
+            { echo "::error::an invalid protected topic did not fail the step"; bad=1; }
+          [ "$bad" -eq 0 ] || exit 1
+          echo "protected topic self-test OK"
+
       - name: Assert neither input reached curl as syntax
         run: |
           tr -d '\r' </tmp/requests.log >/tmp/requests.txt
