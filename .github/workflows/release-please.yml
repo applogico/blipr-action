@@ -54,3 +54,15 @@ jobs:
           priority: 3
           tags: rocket
           click: ${{ steps.release.outputs.html_url }}
+
+      # Pinned to the released action, not ./: the checkout above only runs on a release.
+      - name: Blip when the release fails
+        if: ${{ failure() }}
+        uses: applogico/blipr-action@v1
+        with:
+          topic: blipr-releases
+          title: "blipr-action release failed"
+          message: "The release workflow failed."
+          priority: 4
+          tags: x
+          click: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
