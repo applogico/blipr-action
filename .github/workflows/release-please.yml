@@ -27,7 +27,7 @@ jobs:
       # to the release commit so `uses: applogico/blipr-action@v1` always
       # resolves to the latest release — the convention for GitHub Actions.
       # Checkout with the App token so the tag push is authorized.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         if: ${{ steps.release.outputs.release_created }}
         with:
           token: ${{ steps.app-token.outputs.token }}
