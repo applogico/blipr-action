@@ -73,7 +73,7 @@ jobs:
 | `icon`     | no       | —                  | URL of an icon image to display. |
 | `markdown` | no       | `false`            | Render the body as Markdown. |
 | `reply`    | no       | —                  | Ask for a reply: `binary`, `ack`, or `choice`. See below. |
-| `options`  | no       | —                  | Comma-separated choices (2–10), required when `reply: choice`. |
+| `options`  | no       | —                  | Comma-separated choices (2–5), required when `reply: choice`. |
 | `callback` | no       | —                  | URL POSTed the reply when it lands. |
 | `server`   | no       | `https://blipr.dev`| Base URL of the Blipr / notify server. Point at your own host to self-host. |
 | `dry_run`  | no       | `false`            | Print the request and exit without publishing. Handy for testing. |
