@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/applogico/blipr-action/compare/v1.1.0...v1.1.1) (2026-11-17)
+
+
+### Bug Fixes
+
+* document the 5-option limit for choice asks ([#28](https://github.com/applogico/blipr-action/issues/28)) ([da3599f](https://github.com/applogico/blipr-action/commit/da3599f64503a82f390d8545d27545320e2b3aa0))
+
 ## [1.1.0](https://github.com/applogico/blipr-action/compare/v1.0.2...v1.1.0) (2026-10-03)
 
 
